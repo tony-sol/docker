@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+source `dirname $0`/env.sh
+
+${SCRIPT_DIR}/stop
+${SCRIPT_DIR}/start

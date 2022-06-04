@@ -1,0 +1,27 @@
+{
+	"require": {
+		"php": ">=8.1",
+        "ext-apcu": "*",
+        "ext-ctype": "*",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-ffi": "*",
+        "ext-filter": "*",
+        "ext-iconv": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pcre": "*",
+        "ext-pdo": "*",
+        "ext-rdkafka": "*",
+        "ext-redis": "*",
+        "ext-reflection": "*",
+        "ext-sockets": "*",
+        "ext-spl": "*",
+        "ext-tokenizer": "*",
+        "ext-xml": "*",
+        "ext-xmlwriter": "*",
+        "ext-yaml": "*"
+	}
+}

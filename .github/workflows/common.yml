@@ -1,0 +1,58 @@
+name: Common worflow
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: Verify php container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build image
+        uses: docker/build-push-action@v3
+        with:
+          load: true
+          context: ./images/php/
+          tags: temp-php
+
+      - name: Check extensions
+        run: docker run --tty --rm temp-php composer check-platform-reqs --working-dir /tmp
+
+  nginx:
+    name: Verify nginx container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build image
+        uses: docker/build-push-action@v3
+        with:
+          load: true
+          context: ./images/nginx/
+          tags: temp-nginx
+          build-args: NGINX_FASTCGI_PASS=127.0.0.1
+
+      - name: Check configuration
+        run: docker run --tty --rm temp-nginx nginx -T

@@ -1,0 +1,141 @@
+version: '3.8'
+
+services:
+    php:
+        build:
+            context: ./images/php
+        tty: true
+        env_file: .env
+        ports:
+            - ${PHP_PORT}:8080
+        volumes:
+            - ${DOCKER_CACHE_PATH}/php:/var/log/php
+            - ${DOCKER_PROJECT_PATH}:/app
+        networks:
+            - backend
+
+    nginx:
+        profiles:
+            - nginx
+        depends_on:
+            - php
+        build:
+            context: ./images/nginx
+            args:
+                - NGINX_FASTCGI_PASS=php:9000
+        env_file: .env
+        ports:
+            - ${NGINX_PORT}:80
+            - ${NGINX_PORT_SECURED}:443
+        volumes:
+            - ${DOCKER_CACHE_PATH}/nginx:/var/log/nginx
+            - ${DOCKER_PROJECT_PATH}/public:/app/public
+        networks:
+            - backend
+            - frontend
+
+    redis:
+        profiles:
+            - redis
+        image: redis:latest
+        command: redis-server
+        env_file: .env
+        ports:
+            - ${REDIS_PORT}:6379
+        volumes:
+            - ${DOCKER_CACHE_PATH}/redis:/data
+        networks:
+            - backend
+
+    postgres:
+        profiles:
+            - postgres
+        image: postgres:latest
+        command: postgres
+        env_file: .env
+        ports:
+            - ${POSTGRES_PORT}:5432
+        volumes:
+            - ${DOCKER_CACHE_PATH}/postgres:/var/lib/postgresql/data
+        networks:
+            - backend
+
+    clickhouse:
+        profiles:
+            - clickhouse
+        image: clickhouse/clickhouse-server:latest
+        env_file: .env
+        ports:
+            - ${CLICKHOUSE_PORT}:8123
+        volumes:
+            - ${DOCKER_CACHE_PATH}/clickhouse:/var/lib/clickhouse
+        networks:
+            - backend
+
+    consul:
+        profiles:
+            - consul
+        image: consul:latest
+        env_file: .env
+        ports:
+            - ${CONSUL_PORT}:8500
+        volumes:
+            - ${DOCKER_CACHE_PATH}/consul:/consul/data
+        networks:
+            - backend
+
+    kafka:
+        profiles:
+            - kafka
+        image: bitnami/kafka:latest
+        env_file: .env
+        ports:
+            - ${KAFKA_PORT}:9092
+        volumes:
+            - ${DOCKER_CACHE_PATH}/kafka:/bitnami/kafka
+        networks:
+            - backend
+
+    kowl:
+        profiles:
+            - kafka
+        depends_on:
+            - kafka
+        image: rsmnarts/kowl:latest
+        entrypoint: ./kowl
+        env_file: .env
+        ports:
+            - ${KOWL_PORT}:8080
+        networks:
+            - backend
+
+    prometheus:
+        profiles:
+            - prometheus
+        image: prom/prometheus:latest
+        env_file: .env
+        ports:
+            - ${PROMETHEUS_PORT}:9090
+        volumes:
+            - ${DOCKER_CACHE_PATH}/prometheus:/prometheus
+        networks:
+            - backend
+
+    grafana:
+        profiles:
+            - prometheus
+        image: grafana/grafana:latest
+        env_file: .env
+        ports:
+            - ${GRAFANA_PORT}:3000
+        volumes:
+            - ${DOCKER_CACHE_PATH}/grafana/data:/var/lib/grafana
+            - ${DOCKER_CACHE_PATH}/grafana/logs:/var/log/grafana
+        networks:
+            - backend
+
+networks:
+    frontend:
+        driver: bridge
+    backend:
+        driver: bridge

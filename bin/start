@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -e
+source `dirname $0`/env.sh
+
+echo -e "\nInitializing virtual services\n"
+
+echo -e "+ Building services"
+${COMPOSE} build --force-rm
+
+echo -e "+ Run services"
+${COMPOSE} up --detach --remove-orphans
+
+echo -e "+ Check running services"
+${COMPOSE} ps
