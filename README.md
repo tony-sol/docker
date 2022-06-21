@@ -40,6 +40,7 @@ docker-compose --version # 1.10.0 or higher
 
 ## Development plans:
 * Add [Tarantool](https://hub.docker.com/r/tarantool/tarantool/) - Lua application server integrated with a database management system
+* Add [Sentry](https://hub.docker.com/_/sentry) - Error tracker and performance monitoring tool
 * Add (or not) Prometheus exporters:
   * [Node-Exporter](https://hub.docker.com/r/prom/node-exporter)
   * [Consul-Exporter](https://hub.docker.com/r/prom/consul-exporter)
