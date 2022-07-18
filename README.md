@@ -14,9 +14,11 @@
 | [Nginx](./images/nginx/Dockerfile)                                   | nginx                                                | Web server for php-fpm                                 |
 | [Postgres](https://hub.docker.com/_/postgres/)                       | postgres                                             | Relational database and management system              |
 | [Redis](https://hub.docker.com/_/redis/)                             | redis                                                | In-memory key–value database                           |
+| [Tarantool](https://hub.docker.com/r/tarantool/tarantool/)           | tarantool                                            | Lua app server integrated with a DB management system  |
 | [Clickhouse](https://hub.docker.com/r/clickhouse/clickhouse-server/) | clickhouse                                           | Columnar database and management system                |
 | [Kafka](https://hub.docker.com/r/bitnami/kafka/)                     | kafka                                                | Distributed event store and stream-processing platform |
 | [Kowl](https://hub.docker.com/r/rsmnarts/kowl/)                      | kafka                                                | Easy-to-use web UI for kafka management                |
+| [Vault](https://hub.docker.com/_/vault/)                             | vault                                                | Tool for securely accessing secrets                    |
 | [Consul](https://hub.docker.com/_/consul/)                           | consul                                               | Service networking platform                            |
 | [Prometheus](https://hub.docker.com/r/prom/prometheus/)              | prometheus                                           | Monitoring system with a time series database          |
 | [Grafana](https://hub.docker.com/r/grafana/grafana/)                 | prometheus                                           | Interactive visualization for Prometheus               |
@@ -39,12 +41,10 @@ docker-compose --version # 1.10.0 or higher
 ```
 
 ## Development plans:
-* Add [Tarantool](https://hub.docker.com/r/tarantool/tarantool/) - Lua application server integrated with a database management system
 * Add [Sentry](https://hub.docker.com/_/sentry) - Error tracker and performance monitoring tool
 * Add (or not) Prometheus exporters:
   * [Node-Exporter](https://hub.docker.com/r/prom/node-exporter)
   * [Consul-Exporter](https://hub.docker.com/r/prom/consul-exporter)
   * [Postgres-Exporter](https://hub.docker.com/r/prometheuscommunity/postgres-exporter)
   * [Kafka-Exporter](https://hub.docker.com/r/danielqsj/kafka-exporter)
-* Split `php` service into `app` and `php-cli`/`php-fpm` services itself
 * Add (or not) RoadRunner application server

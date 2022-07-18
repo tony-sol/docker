@@ -60,6 +60,18 @@ services:
         networks:
             - backend
 
+    tarantool:
+        profiles:
+            - tarantool
+        image: tarantool/tarantool:latest
+        env_file: .env
+        ports:
+            - ${TARANTOOL_PORT}:8123
+        volumes:
+            - ${DOCKER_CACHE_PATH}/tarantool:/var/lib/tarantool
+        networks:
+            - backend
+
     clickhouse:
         profiles:
             - clickhouse
@@ -81,6 +93,18 @@ services:
             - ${CONSUL_PORT}:8500
         volumes:
             - ${DOCKER_CACHE_PATH}/consul:/consul/data
+        networks:
+            - backend
+
+    vault:
+        profiles:
+            - vault
+        image: vault:latest
+        env_file: .env
+        ports:
+            - ${VAULT_PORT}:8200
+        volumes:
+            - ${DOCKER_CACHE_PATH}/vault:/vault/data
         networks:
             - backend
 
