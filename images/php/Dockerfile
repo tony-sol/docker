@@ -39,6 +39,7 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     unzip \
     vim \
     less \
+    jq \
     librdkafka-dev \
     libyaml-dev \
     traceroute \
