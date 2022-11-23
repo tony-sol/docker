@@ -5,6 +5,7 @@
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-dom": "*",
+        "ext-ds": "*",
         "ext-ffi": "*",
         "ext-filter": "*",
         "ext-iconv": "*",

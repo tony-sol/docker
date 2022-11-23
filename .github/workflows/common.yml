@@ -31,7 +31,10 @@ jobs:
           tags: temp-php
 
       - name: Check extensions
-        run: docker run --tty --rm temp-php composer check-platform-reqs --working-dir /tmp
+        run: docker run --tty --rm temp-php /bin/bash -c "
+          /usr/bin/composer update --no-install --working-dir /tmp &&
+          /usr/bin/composer check-platform-reqs --working-dir /tmp
+          "
 
   nginx:
     name: Verify nginx container

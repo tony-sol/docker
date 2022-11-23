@@ -20,6 +20,7 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     lsb-release \
     software-properties-common \
     ca-certificates \
+    bash-completion \
     binutils \
     coreutils \
     netbase \
@@ -75,7 +76,8 @@ RUN add-apt-repository ppa:ondrej/php && \
     php${PHP_VERSION}-zip \
     php-pear && \
     curl -sS https://getcomposer.org/installer -o composer-setup.php && \
-    php composer-setup.php --install-dir=/usr/bin --filename=composer
+    php composer-setup.php --install-dir=/usr/bin --filename=composer && \
+    composer completion bash > /etc/bash_completion.d/composer
 
 COPY ${PHP_VERSION}/ /etc/php/${PHP_VERSION}/
 
