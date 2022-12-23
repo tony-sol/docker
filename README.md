@@ -9,7 +9,7 @@
 ## Stack includes:
 
 | Service                                                              | [Profile](https://docs.docker.com/compose/profiles/) | Description                                            |
-| -------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------ |
+|----------------------------------------------------------------------|------------------------------------------------------|--------------------------------------------------------|
 | [Php](./images/php/Dockerfile)                                       | *none*                                               | Main App container with PHP 8.1                        |
 | [Nginx](./images/nginx/Dockerfile)                                   | nginx                                                | Web server for php-fpm                                 |
 | [Postgres](https://hub.docker.com/_/postgres/)                       | postgres                                             | Relational database and management system              |
@@ -21,13 +21,15 @@
 | [Vault](https://hub.docker.com/_/vault/)                             | vault                                                | Tool for securely accessing secrets                    |
 | [Consul](https://hub.docker.com/_/consul/)                           | consul                                               | Service networking platform                            |
 | [Prometheus](https://hub.docker.com/r/prom/prometheus/)              | prometheus                                           | Monitoring system with a time series database          |
-| [Grafana](https://hub.docker.com/r/grafana/grafana/)                 | prometheus                                           | Interactive visualization for Prometheus               |
+| [Grafana](https://hub.docker.com/r/grafana/grafana/)                 | prometheus/loki                                      | Interactive visualization for Prometheus               |
+| [Promtail](https://hub.docker.com/r/grafana/promtail/)               | loki                                                 | Log exporter for Loki                                  |
+| [Loki](https://hub.docker.com/r/grafana/loki/)                       | loki                                                 | Log Aggregation by Grafana                             |
 
 ## Requirements:
-```shell
-docker --version         # 19.03.0 or higher
-docker-compose --version # 1.10.0 or higher
-```
+* Docker Loki logs driver
+  ```shell
+  docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+  ```
 
 ## Usage:
 ```shell
