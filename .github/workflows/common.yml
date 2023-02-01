@@ -36,8 +36,8 @@ jobs:
           /usr/bin/composer check-platform-reqs --working-dir /tmp
           "
 
-  nginx:
-    name: Verify nginx container
+  angie:
+    name: Verify angie container
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -53,9 +53,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           load: true
-          context: ./images/nginx/
-          tags: temp-nginx
-          build-args: NGINX_FASTCGI_PASS=127.0.0.1
+          context: ./images/angie/
+          tags: temp-angie
+          build-args: FASTCGI_PASS=127.0.0.1
 
       - name: Check configuration
-        run: docker run --tty --rm temp-nginx nginx -T
+        run: docker run --tty --rm temp-angie angie -T

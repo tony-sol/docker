@@ -11,7 +11,7 @@
 | Service                                                              | [Profile](https://docs.docker.com/compose/profiles/) | Description                                            |
 |----------------------------------------------------------------------|------------------------------------------------------|--------------------------------------------------------|
 | [Php](./images/php/Dockerfile)                                       | *none*                                               | Main App container with PHP 8.1                        |
-| [Nginx](./images/nginx/Dockerfile)                                   | nginx                                                | Web server for php-fpm                                 |
+| [Angie](./images/Angie/Dockerfile)                                   | Angie                                                | Web server for php-fpm                                 |
 | [Postgres](https://hub.docker.com/_/postgres/)                       | postgres                                             | Relational database and management system              |
 | [Redis](https://hub.docker.com/_/redis/)                             | redis                                                | In-memory key–value database                           |
 | [Tarantool](https://hub.docker.com/r/tarantool/tarantool/)           | tarantool                                            | Lua app server integrated with a DB management system  |

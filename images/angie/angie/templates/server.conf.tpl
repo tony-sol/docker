@@ -1,5 +1,5 @@
 upstream php-upstream {
-	server ${NGINX_FASTCGI_PASS};
+	server ${FASTCGI_PASS};
 }
 
 server {
@@ -18,8 +18,8 @@ server {
 	root /app/public;
 	index  index.php;
 
-	error_log /var/log/nginx/error.log;
-	access_log /var/log/nginx/access.log;
+	error_log /var/log/angie/error.log;
+	access_log /var/log/angie/access.log;
 
 	include conf.d/locations.conf;
 }
