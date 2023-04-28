@@ -39,11 +39,11 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     unzip \
     vim \
     less \
-    jq \
     librdkafka-dev \
     libyaml-dev \
     traceroute \
-    iputils-ping
+    iputils-ping && \
+    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
 
 # RUN cd /usr/lib/aarch64-linux-gnu/ && ln -fs libffi.so.7 libffi.so.6 && cd
 RUN add-apt-repository ppa:ondrej/php && \
