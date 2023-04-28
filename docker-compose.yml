@@ -24,8 +24,7 @@ x-templates:
 
 services:
     php:
-        <<: *common
-        <<: *loki-logging
+        <<: [*common, *loki-logging]
         build:
             context: ./images/php
             args:
@@ -40,8 +39,7 @@ services:
             - ${DOCKER_PROJECT_PATH}:/app
 
     angie:
-        <<: *common
-        <<: *loki-logging
+        <<: [*common, *loki-logging]
         profiles:
             - angie
         depends_on:
@@ -58,8 +56,7 @@ services:
             - ${DOCKER_PROJECT_PATH}/public:/app/public
 
     redis:
-        <<: *common
-        <<: *loki-logging
+        <<: [*common, *loki-logging]
         profiles:
             - redis
         image: redis:latest
@@ -70,8 +67,7 @@ services:
             - ${DOCKER_CACHE_PATH}/redis:/data
 
     postgres:
-        <<: *common
-        <<: *loki-logging
+        <<: [*common, *loki-logging]
         profiles:
             - postgres
         image: postgres:latest
@@ -82,8 +78,7 @@ services:
             - ${DOCKER_CACHE_PATH}/postgres:/var/lib/postgresql/data
 
     tarantool:
-        <<: *common
-        <<: *loki-logging
+        <<: [*common, *loki-logging]
         profiles:
             - tarantool
         image: tarantool/tarantool:latest
@@ -93,8 +88,7 @@ services:
             - ${DOCKER_CACHE_PATH}/tarantool:/var/lib/tarantool
 
     clickhouse:
-        <<: *common
-        <<: *loki-logging
+        <<: [*common, *loki-logging]
         profiles:
             - clickhouse
         image: clickhouse/clickhouse-server:latest

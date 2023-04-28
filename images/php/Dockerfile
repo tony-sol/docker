@@ -59,6 +59,7 @@ RUN add-apt-repository ppa:ondrej/php && \
     php${PHP_VERSION}-dba \
     php${PHP_VERSION}-dev \
     php${PHP_VERSION}-fpm \
+    php${PHP_VERSION}-gd \
     php${PHP_VERSION}-grpc \
     php${PHP_VERSION}-imap \
     php${PHP_VERSION}-intl \

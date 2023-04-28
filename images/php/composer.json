@@ -8,6 +8,7 @@
         "ext-ds": "*",
         "ext-ffi": "*",
         "ext-filter": "*",
+        "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-libxml": "*",
