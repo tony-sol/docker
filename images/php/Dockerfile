@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 ENV LANG ru_RU.utf8
 
@@ -20,6 +20,7 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     lsb-release \
     software-properties-common \
     ca-certificates \
+    gpg-agent \
     bash-completion \
     binutils \
     coreutils \
@@ -42,10 +43,8 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     librdkafka-dev \
     libyaml-dev \
     traceroute \
-    iputils-ping && \
-    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+    iputils-ping
 
-# RUN cd /usr/lib/aarch64-linux-gnu/ && ln -fs libffi.so.7 libffi.so.6 && cd
 RUN add-apt-repository ppa:ondrej/php && \
     apt-get update && \
     apt-get install -fy --no-install-recommends --ignore-missing \
@@ -53,11 +52,10 @@ RUN add-apt-repository ppa:ondrej/php && \
     php${PHP_VERSION}-apcu \
     php${PHP_VERSION}-amqp \
     php${PHP_VERSION}-bcmath \
-    php${PHP_VERSION}-cli \
-    php${PHP_VERSION}-common \
     php${PHP_VERSION}-curl \
     php${PHP_VERSION}-dba \
     php${PHP_VERSION}-dev \
+    php${PHP_VERSION}-ds \
     php${PHP_VERSION}-fpm \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-grpc \
@@ -70,31 +68,28 @@ RUN add-apt-repository ppa:ondrej/php && \
     php${PHP_VERSION}-memcached \
     php${PHP_VERSION}-mysql \
     php${PHP_VERSION}-pgsql \
+    php${PHP_VERSION}-protobuf \
+    php${PHP_VERSION}-rdkafka \
     php${PHP_VERSION}-redis \
     php${PHP_VERSION}-soap \
     php${PHP_VERSION}-xdebug \
     php${PHP_VERSION}-xmlrpc \
     php${PHP_VERSION}-xsl \
+    php${PHP_VERSION}-yaml \
     php${PHP_VERSION}-zip \
-    php-pear && \
-    curl -sS https://getcomposer.org/installer -o composer-setup.php && \
-    php composer-setup.php --install-dir=/usr/bin --filename=composer && \
-    composer completion bash > /etc/bash_completion.d/composer
+    && \
+    update-alternatives --install /usr/sbin/php-fpm php-fpm $(which php-fpm${PHP_VERSION}) 10
 
 COPY ${PHP_VERSION}/ /etc/php/${PHP_VERSION}/
 
 COPY composer.* /tmp/
 
-RUN pecl channel-update pecl.php.net && mkdir -p /tmp/pear/cache && \
-    for pecl_module in ds protobuf rdkafka yaml; do \
-        pecl install ${pecl_module}; \
-            for php_sapi in cli fpm; do \
-            ln -s /etc/php/${PHP_VERSION}/mods-available/${pecl_module}.ini /etc/php/${PHP_VERSION}/${php_sapi}/conf.d/20-${pecl_module}.ini; \
-        done; \
-    done
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+COPY --from=spiralscout/roadrunner /usr/bin/rr /usr/bin/rr
+COPY --from=mikefarah/yq /usr/bin/yq /usr/bin/yq
 
-EXPOSE 9000 9003
+EXPOSE 6001 9000 9003
 
 WORKDIR /app
 
-CMD php-fpm${PHP_VERSION} -F
+CMD [ "php-fpm", "--nodaemonize" ]
