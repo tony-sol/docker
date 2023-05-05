@@ -1,184 +1,202 @@
 version: '3.8'
 
 x-templates:
-    common:
-        &common
-        env_file: .env
-        # hostname: "{{ .Service.Name }}" for possible future
-        networks:
-            - backend
+  common: &common
+    env_file: .env
+    # hostname: "{{ .Service.Name }}" for possible future
+    networks:
+      - backend
 
-    loki-logging:
-        &loki-logging
-        logging:
-            driver: loki
-            options:
-                no-file: "${DELEGATE_LOGS_TO_LOKI}"
-                loki-url: http://host.docker.internal:${LOKI_PORT}/loki/api/v1/push
-                # @todo match all container logs to labels
-                loki-pipeline-stages: |
-                    - regex:
-                        expression: '(level|lvl|severity)=(?P<level>\w+)'
-                    - labels:
-                        level:
+  # @todo override by service
+  loki-pipeline-stages: &loki-pipeline-stages |
+    - regex:
+        expression: '(level|lvl|severity)=(?P<level>\w+)'
+    - labels:
+        level:
 
-services:
-    php:
-        <<: [*common, *loki-logging]
-        build:
-            context: ./images/php
-            args:
-                - PHP_VERSION=8.1
-        tty: true
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        ports:
-            - ${PHP_PORT}:8080
-        volumes:
-            - ${DOCKER_CACHE_PATH}/php:/var/log/php
-            - ${DOCKER_PROJECT_PATH}:/app
-
-    angie:
-        <<: [*common, *loki-logging]
-        profiles:
-            - angie
-        depends_on:
-            - php
-        build:
-            context: ./images/angie
-            args:
-                - FASTCGI_PASS=php:9000
-        ports:
-            - ${ANGIE_PORT}:80
-            - ${ANGIE_PORT_SECURED}:443
-        volumes:
-            - ${DOCKER_CACHE_PATH}/angie:/var/log/angie
-            - ${DOCKER_PROJECT_PATH}/public:/app/public
-
-    redis:
-        <<: [*common, *loki-logging]
-        profiles:
-            - redis
-        image: redis:latest
-        command: redis-server
-        ports:
-            - ${REDIS_PORT}:6379
-        volumes:
-            - ${DOCKER_CACHE_PATH}/redis:/data
-
-    postgres:
-        <<: [*common, *loki-logging]
-        profiles:
-            - postgres
-        image: postgres:latest
-        command: postgres
-        ports:
-            - ${POSTGRES_PORT}:5432
-        volumes:
-            - ${DOCKER_CACHE_PATH}/postgres:/var/lib/postgresql/data
-
-    tarantool:
-        <<: [*common, *loki-logging]
-        profiles:
-            - tarantool
-        image: tarantool/tarantool:latest
-        ports:
-            - ${TARANTOOL_PORT}:8123
-        volumes:
-            - ${DOCKER_CACHE_PATH}/tarantool:/var/lib/tarantool
-
-    clickhouse:
-        <<: [*common, *loki-logging]
-        profiles:
-            - clickhouse
-        image: clickhouse/clickhouse-server:latest
-        ports:
-            - ${CLICKHOUSE_PORT}:8123
-        volumes:
-            - ${DOCKER_CACHE_PATH}/clickhouse:/var/lib/clickhouse
-
-    consul:
-        <<: *common
-        profiles:
-            - consul
-        image: consul:latest
-        ports:
-            - ${CONSUL_PORT}:8500
-        volumes:
-            - ${DOCKER_CACHE_PATH}/consul:/consul/data
-
-    vault:
-        <<: *common
-        profiles:
-            - vault
-        image: vault:latest
-        ports:
-            - ${VAULT_PORT}:8200
-        volumes:
-            - ${DOCKER_CACHE_PATH}/vault:/vault/data
-
-    kafka:
-        <<: *common
-        <<: *loki-logging
-        profiles:
-            - kafka
-        image: bitnami/kafka:latest
-        ports:
-            - ${KAFKA_PORT}:9092
-        volumes:
-            - ${DOCKER_CACHE_PATH}/kafka:/bitnami/kafka
-
-    kowl:
-        <<: *common
-        profiles:
-            - kafka
-        depends_on:
-            - kafka
-        image: rsmnarts/kowl:latest
-        entrypoint: ./kowl
-        ports:
-            - ${KOWL_PORT}:8080
-
-    prometheus:
-        <<: *common
-        profiles:
-            - prometheus
-        image: prom/prometheus:latest
-        ports:
-            - ${PROMETHEUS_PORT}:9090
-        volumes:
-            - ${DOCKER_CACHE_PATH}/prometheus:/prometheus
-
-    promtail:
-        <<: *common
-        profiles:
-            - loki
-        image: grafana/promtail:latest
-        command: -config.file=/etc/promtail/config.yml
-        volumes:
-            - ${DOCKER_CACHE_PATH}/promtail/logs:/var/log
-
-    loki:
-        <<: *common
-        profiles:
-            - loki
-        image: grafana/loki:latest
-        command: -config.file=/etc/loki/local-config.yaml
-        ports:
-            - ${LOKI_PORT}:3100
-
-    grafana:
-        <<: *common
-        profiles:
-            - prometheus
-            - loki
-        image: grafana/grafana:latest
-        ports:
-            - ${GRAFANA_PORT}:3000
-        volumes:
-            - ${DOCKER_CACHE_PATH}/grafana/data:/var/lib/grafana
-            - ${DOCKER_CACHE_PATH}/grafana/logs:/var/log/grafana
+  loki-logging: &loki-logging
+    logging:
+      driver: loki
+      options:
+        loki-url: http://host.docker.internal:${LOKI_PORT}/loki/api/v1/push
+        no-file: "false"
+        loki-pipeline-stages: *loki-pipeline-stages
 
 networks:
-    backend:
-        driver: bridge
+  backend:
+    driver: bridge
+
+configs:
+  loki:
+    file: ./configs/loki/config.yml
+  promtail:
+    file: ./configs/promtail/config.yml
+
+secrets: {}
+  
+volumes: {}
+
+services:
+  php:
+    <<: [*common, *loki-logging]
+    build:
+      context: ./images/php
+      args:
+        - PHP_VERSION=8.1
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - ${PHP_PORT}:8080
+    volumes:
+      - ${DOCKER_CACHE_PATH}/php:/var/log/php
+      - ${DOCKER_PROJECT_PATH}:/app
+
+  angie:
+    <<: [*common, *loki-logging]
+    profiles:
+      - angie
+    depends_on:
+      - php
+    build:
+      context: ./images/angie
+      args:
+        - FASTCGI_PASS=php:9000
+    ports:
+      - ${ANGIE_PORT}:80
+      - ${ANGIE_PORT_SECURED}:443
+    volumes:
+      - ${DOCKER_CACHE_PATH}/angie:/var/log/angie
+      - ${DOCKER_PROJECT_PATH}/public:/app/public
+
+  redis:
+    <<: [*common, *loki-logging]
+    profiles:
+      - redis
+    image: redis:latest
+    command: redis-server
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - ${DOCKER_CACHE_PATH}/redis:/data
+
+  postgres:
+    <<: [*common, *loki-logging]
+    profiles:
+      - postgres
+    image: postgres:latest
+    command: postgres
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - ${DOCKER_CACHE_PATH}/postgres:/var/lib/postgresql/data
+
+  tarantool:
+    <<: [*common, *loki-logging]
+    profiles:
+      - tarantool
+    image: tarantool/tarantool:latest
+    ports:
+      - ${TARANTOOL_PORT}:8123
+    volumes:
+      - ${DOCKER_CACHE_PATH}/tarantool:/var/lib/tarantool
+
+  clickhouse:
+    <<: [*common, *loki-logging]
+    profiles:
+      - clickhouse
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - ${CLICKHOUSE_PORT}:8123
+    volumes:
+      - ${DOCKER_CACHE_PATH}/clickhouse:/var/lib/clickhouse
+
+  consul:
+    <<: *common
+    profiles:
+      - consul
+    image: consul:latest
+    ports:
+      - ${CONSUL_PORT}:8500
+    volumes:
+      - ${DOCKER_CACHE_PATH}/consul:/consul/data
+
+  vault:
+    <<: *common
+    profiles:
+      - vault
+    image: vault:latest
+    ports:
+      - ${VAULT_PORT}:8200
+    volumes:
+      - ${DOCKER_CACHE_PATH}/vault:/vault/data
+
+  kafka:
+    <<: [*common, *loki-logging]
+    profiles:
+      - kafka
+    image: bitnami/kafka:latest
+    ports:
+      - ${KAFKA_PORT}:9092
+    volumes:
+      - ${DOCKER_CACHE_PATH}/kafka:/bitnami/kafka
+
+  kowl:
+    <<: *common
+    profiles:
+      - kafka
+    depends_on:
+      - kafka
+    image: rsmnarts/kowl:latest
+    entrypoint: ./kowl
+    ports:
+      - ${KOWL_PORT}:8080
+
+  prometheus:
+    <<: *common
+    profiles:
+      - prometheus
+    image: prom/prometheus:latest
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+    volumes:
+      - ${DOCKER_CACHE_PATH}/prometheus:/prometheus
+
+  promtail:
+    <<: *common
+    profiles:
+      - loki
+    configs:
+      - source: promtail
+        target: /etc/promtail/config
+    image: grafana/promtail:latest
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ${DOCKER_CACHE_PATH}/promtail/logs:/var/log
+
+  loki:
+    <<: *common
+    profiles:
+      - loki
+    configs:
+      - source: loki
+        target: /etc/loki/config.yaml
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/config.yaml
+    ports:
+      - ${LOKI_PORT}:3100
+    volumes:
+      - ${DOCKER_CACHE_PATH}/loki/chunks:/loki/chunks
+      - ${DOCKER_CACHE_PATH}/loki/rules:/loki/rules
+
+  grafana:
+    <<: *common
+    profiles:
+      - prometheus
+      - loki
+    image: grafana/grafana:latest
+    ports:
+      - ${GRAFANA_PORT}:3000
+    volumes:
+      - ${DOCKER_CACHE_PATH}/grafana/data:/var/lib/grafana
+      - ${DOCKER_CACHE_PATH}/grafana/logs:/var/log/grafana
